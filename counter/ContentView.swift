@@ -10,71 +10,101 @@ import CoreData
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.verticalSizeClass) var verticalSizeClass: UserInterfaceSizeClass?
+        @Environment(\.horizontalSizeClass) var horizontalSizeClass: UserInterfaceSizeClass?
 
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
         animation: .default)
     private var items: FetchedResults<Item>
+    
+    @State private var count:Int = 0
+    @State private var previousState:Int = 0
+    @State private var isEditing:Bool = false
+    
+    @State var showInfo:Bool = false
 
     var body: some View {
         VStack {
-            
-        }
-//        List {
-//            ForEach(items) { item in
-//                Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-//            }
-//            .onDelete(perform: deleteItems)
-//        }
-//        .toolbar {
-//            #if os(iOS)
-//            EditButton()
-//            #endif
-//
-//            Button(action: addItem) {
-//                Label("Add Item", systemImage: "plus")
-//            }
-//        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+            if horizontalSizeClass == .compact && verticalSizeClass == .regular {
+                Spacer()
+                    .frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+            } else {
+                Spacer()
             }
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+                Spacer()
+            Text("\(count)")
+                .font(.system(size: 100))
+            Spacer()
+            HStack {
+                Spacer()
+                if count == 0 {
+                    Button(action: {
+                        count -= 1
+                    }, label: {
+                        Image(systemName: "minus")
+                            .frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                            .font(.system(size: 60))
+                            .background(Color.gray)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    })
+                    .disabled(true)
+                } else {
+                    Button(action: {
+                        count -= 1
+                    }, label: {
+                        Image(systemName: "minus")
+                            .frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                            .font(.system(size: 60))
+                            .background(Color.gray)
+                            .foregroundColor(.yellow)
+                            .cornerRadius(10)
+                    })
+                }
+                Spacer()
+                Button(action: {
+                    count += 1
+                }, label: {
+                    Image(systemName: "plus")
+                        .frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                        .font(.system(size: 60))
+                        .background(Color.gray)
+                        .foregroundColor(.yellow)
+                        .cornerRadius(10)
+                })
+                Spacer()
             }
+            Spacer()
+            HStack {
+                if count == 0 {
+                    Button(action: {
+                        count = previousState
+                    }, label: {
+                        Image(systemName: "gobackward")
+                    })
+                } else {
+                    Button(action: {
+                        previousState = count
+                        count = 0
+                    }, label: {
+                        Image(systemName: "multiply.circle.fill")
+                    })
+                }
+                Spacer()
+                Button(action: {
+                    self.showInfo.toggle()
+                }, label: {
+                    Image(systemName: "info.circle.fill")
+                })
+                .sheet(isPresented: $showInfo, content: {
+                    InfoView()
+                })
+            }
+            .padding()
         }
     }
 }
-
-private let itemFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .medium
-    return formatter
-}()
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
