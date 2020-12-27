@@ -12,16 +12,12 @@ struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.verticalSizeClass) var verticalSizeClass: UserInterfaceSizeClass?
         @Environment(\.horizontalSizeClass) var horizontalSizeClass: UserInterfaceSizeClass?
-
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default)
-    private var items: FetchedResults<Item>
     
-    @State private var count:Int = 0
+    @AppStorage(wrappedValue: 9999, "limitValue") var currentLimitValue:Int
+    @AppStorage(wrappedValue: 0, "resetValue") var currentResetValue:Int
+    @AppStorage(wrappedValue: 0, "count") private var count:Int
+    
     @State private var previousState:Int = 0
-    @State private var isEditing:Bool = false
-    
     @State var showInfo:Bool = false
 
     var body: some View {
@@ -33,60 +29,21 @@ struct ContentView: View {
                 Spacer()
             }
                 Spacer()
-            Text("\(count)")
+            Text("\(self.count)")
                 .font(.system(size: 100))
             Spacer()
-            HStack {
-                Spacer()
-                if count == 0 {
-                    Button(action: {
-                        count -= 1
-                    }, label: {
-                        Image(systemName: "minus")
-                            .frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
-                            .font(.system(size: 60))
-                            .background(Color.gray)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    })
-                    .disabled(true)
-                } else {
-                    Button(action: {
-                        count -= 1
-                    }, label: {
-                        Image(systemName: "minus")
-                            .frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
-                            .font(.system(size: 60))
-                            .background(Color.gray)
-                            .foregroundColor(.yellow)
-                            .cornerRadius(10)
-                    })
-                }
-                Spacer()
-                Button(action: {
-                    count += 1
-                }, label: {
-                    Image(systemName: "plus")
-                        .frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
-                        .font(.system(size: 60))
-                        .background(Color.gray)
-                        .foregroundColor(.yellow)
-                        .cornerRadius(10)
-                })
-                Spacer()
-            }
+            ButtonLayout(currentLimitValue: $currentLimitValue, currentResetValue: $currentResetValue, count: $count)
             Spacer()
             HStack {
-                if count == 0 {
+                if self.count == currentResetValue {
                     Button(action: {
-                        count = previousState
+                        self.count = self.previousState
                     }, label: {
                         Image(systemName: "gobackward")
                     })
                 } else {
                     Button(action: {
-                        previousState = count
-                        count = 0
+                        reset()
                     }, label: {
                         Image(systemName: "multiply.circle.fill")
                     })
@@ -103,6 +60,83 @@ struct ContentView: View {
             }
             .padding()
         }
+    }
+    
+    func reset() {
+        previousState = self.count
+        self.count = currentResetValue
+        UserDefaults.standard.set(self.count, forKey: "count")
+    }
+}
+
+struct ButtonLayout:View {
+    @AppStorage(wrappedValue: Layout.plusminus, "buttonLayout") var currentBtnLayout:Layout
+    @AppStorage(wrappedValue: false, "isInvert") var isInvert:Bool
+    
+    @Binding var currentLimitValue:Int
+    @Binding var currentResetValue:Int
+    @Binding var count:Int
+
+    var body: some View {
+        HStack {
+            Spacer()
+            switch currentBtnLayout {
+            case .minus:
+                minusBtn
+            case .plus:
+                plusBtn
+            case .plusminus:
+                if isInvert {
+                    plusBtn
+                } else {
+                    minusBtn
+                }
+                Spacer()
+                if !isInvert {
+                    plusBtn
+                } else {
+                    minusBtn
+                }
+            }
+            Spacer()
+        }
+    }
+    
+    var plusBtn: some View {
+        Button(action: {
+            add()
+        }, label: {
+            Image(systemName: "plus")
+                .frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                .font(.system(size: 60))
+                .background(Color(.systemGray2))
+                .foregroundColor(Color(self.count < currentLimitValue ? .systemYellow : .systemGray6))
+                .cornerRadius(10)
+        })
+        .disabled(self.count == currentLimitValue)
+    }
+    
+    var minusBtn: some View {
+        Button(action: {
+            subtract()
+        }, label: {
+            Image(systemName: "minus")
+                .frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                .font(.system(size: 60))
+                .background(Color(.systemGray2))
+                .foregroundColor(Color(self.count > currentResetValue ? .systemYellow : .systemGray6))
+                .cornerRadius(10)
+        })
+        .disabled(self.count == currentResetValue)
+    }
+    
+    func add() {
+        self.count += 1
+        UserDefaults.standard.set(self.count, forKey: "count")
+    }
+    func subtract() {
+        self.count -= 1
+        UserDefaults.standard.set(self.count, forKey: "count")
     }
 }
 

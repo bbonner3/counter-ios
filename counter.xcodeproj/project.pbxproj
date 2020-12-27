@@ -17,6 +17,7 @@
 		171A342D258FE78700F63F9B /* counterUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 171A342C258FE78700F63F9B /* counterUITests.swift */; };
 		171A343E258FF79E00F63F9B /* CounterDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 171A343D258FF79E00F63F9B /* CounterDisplayView.swift */; };
 		171A34432590408100F63F9B /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 171A34422590408100F63F9B /* InfoView.swift */; };
+		172C8BC025982E050042E988 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 172C8BBF25982E050042E988 /* Settings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +54,7 @@
 		171A342E258FE78700F63F9B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		171A343D258FF79E00F63F9B /* CounterDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CounterDisplayView.swift; sourceTree = "<group>"; };
 		171A34422590408100F63F9B /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
+		172C8BBF25982E050042E988 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +114,7 @@
 				171A3410258FE78700F63F9B /* Preview Content */,
 				171A343D258FF79E00F63F9B /* CounterDisplayView.swift */,
 				171A34422590408100F63F9B /* InfoView.swift */,
+				172C8BBF25982E050042E988 /* Settings.swift */,
 			);
 			path = counter;
 			sourceTree = "<group>";
@@ -275,6 +278,7 @@
 				171A3414258FE78700F63F9B /* Persistence.swift in Sources */,
 				171A340D258FE78600F63F9B /* ContentView.swift in Sources */,
 				171A343E258FF79E00F63F9B /* CounterDisplayView.swift in Sources */,
+				172C8BC025982E050042E988 /* Settings.swift in Sources */,
 				171A34432590408100F63F9B /* InfoView.swift in Sources */,
 				171A340B258FE78600F63F9B /* counterApp.swift in Sources */,
 			);
