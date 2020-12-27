@@ -7,6 +7,7 @@
 
 import SwiftUI
 import CoreData
+import AVFoundation
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
@@ -19,6 +20,9 @@ struct ContentView: View {
     
     @State private var previousState:Int = 0
     @State var showInfo:Bool = false
+    
+    private let resetSound:SystemSoundID = 1102
+    private let previousSound:SystemSoundID = 1075
 
     var body: some View {
         VStack {
@@ -38,6 +42,7 @@ struct ContentView: View {
                 if self.count == currentResetValue {
                     Button(action: {
                         self.count = self.previousState
+                        AudioServicesPlaySystemSound(previousSound)
                     }, label: {
                         Image(systemName: "gobackward")
                     })
@@ -63,19 +68,29 @@ struct ContentView: View {
     }
     
     func reset() {
+        
         previousState = self.count
         self.count = currentResetValue
+        if UserDefaults.standard.bool(forKey: "sound") {
+            AudioServicesPlaySystemSound(resetSound)
+        }
         UserDefaults.standard.set(self.count, forKey: "count")
     }
 }
 
 struct ButtonLayout:View {
+    let feedback = UIImpactFeedbackGenerator()
+    
     @AppStorage(wrappedValue: Layout.plusminus, "buttonLayout") var currentBtnLayout:Layout
     @AppStorage(wrappedValue: false, "isInvert") var isInvert:Bool
     
     @Binding var currentLimitValue:Int
     @Binding var currentResetValue:Int
     @Binding var count:Int
+    
+    private let addSound:SystemSoundID = 1103
+    private let subtractSound:SystemSoundID = 1104
+
 
     var body: some View {
         HStack {
@@ -133,10 +148,15 @@ struct ButtonLayout:View {
     func add() {
         self.count += 1
         UserDefaults.standard.set(self.count, forKey: "count")
+        if UserDefaults.standard.bool(forKey: "sound") {
+            AudioServicesPlaySystemSound(addSound)
+        }
+        feedback.impactOccurred(intensity: 1)
     }
     func subtract() {
         self.count -= 1
         UserDefaults.standard.set(self.count, forKey: "count")
+        UserDefaults.standard.bool(forKey: "sound") ? AudioServicesPlaySystemSound(subtractSound) : feedback.impactOccurred(intensity: 1)
     }
 }
 

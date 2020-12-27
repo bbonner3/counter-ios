@@ -9,12 +9,14 @@ import SwiftUI
 
 struct InfoView: View {
     @Environment(\.presentationMode) var presentationMode
+    let notificationCenter = UNUserNotificationCenter.current()
     
     @State var notificationsIsOn = false
     @State private var isEditing:Bool = false
     
     let defaults = UserDefaults.standard
     
+    @AppStorage(wrappedValue: false, "sound") var sound:Bool
     @AppStorage(wrappedValue: Layout.plusminus, "buttonLayout") var currentBtnLayout:Layout
     @AppStorage(wrappedValue: false, "isInvert") var isInvert:Bool
     @AppStorage(wrappedValue: 9999, "limitValue") var currentLimitValue:Int
@@ -40,16 +42,37 @@ struct InfoView: View {
             })
     }
     
+    
+    
     var body: some View {
+        let toggle = Binding<Bool> (
+            get: { self.notificationsIsOn },
+            set: { newValue in
+                self.notificationsIsOn = newValue
+                notificationCenter.requestAuthorization(options: [.badge, .sound]) { granted, error in
+                    if let error = error {
+                        return
+                    }
+                }
+            }
+        )
+    
         NavigationView {
             List {
                 Section(header: Text("App Settings")) {
-                    Toggle(isOn: $notificationsIsOn, label: {
+                    Toggle(isOn: toggle, label: {
                         HStack {
                             Image(systemName: "app.badge")
                             Text("Badges")
                         }
                     })
+                    Toggle(isOn: $sound, label: {
+                        HStack {
+                            Image(systemName: sound ? "speaker.wave.3" : "speaker.slash")
+                            Text("Sound")
+                        }
+                    })
+                    
                 }
                 Section(header: Text("Counter Settings")) {
                     Picker("Button Option", selection: self.$currentBtnLayout) {
@@ -80,6 +103,23 @@ struct InfoView: View {
                             self.presentationMode.wrappedValue.dismiss()
                         }
                 }
+            }
+        }
+    }
+    
+    func requestNotifications() {
+        notificationCenter.requestAuthorization(options: [.badge]) { granted, error in
+            if let error = error {
+                return
+            }
+        }
+    }
+    
+    
+    func removeNotifications() {
+        notificationCenter.requestAuthorization(options: [.badge]) { granted, error in
+            if let error = error {
+                return
             }
         }
     }
